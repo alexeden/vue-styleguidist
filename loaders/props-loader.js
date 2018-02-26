@@ -22,9 +22,11 @@ module.exports = function(source) {
 		config.contextDependencies.forEach(dir => this.addContextDependency(dir));
 	}
 
-	const defaultParser = (filePath, source, resolver, handlers) =>
-		reactDocs.parse(source, resolver, handlers);
-	const propsParser = config.propsParser || defaultParser;
+	const propsParser =
+		config.propsParser ||
+		((filePath, source, resolver, handlers) => {
+			return reactDocs.parse(source, resolver, handlers);
+		});
 
 	let props = {};
 	try {

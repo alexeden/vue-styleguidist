@@ -1,5 +1,4 @@
 import fs from 'fs';
-import chalk from 'chalk';
 import * as utils from './utils';
 import stateDoc from './utils/stateDoc';
 
@@ -10,10 +9,10 @@ export const parse = function(file) {
 	}
 	stateDoc.file = file;
 	stateDoc.saveComponent(source, file);
-	const component = utils.getSandbox(stateDoc.jscodeReqest, file).default;
-	console.log(chalk.blue(`vue-docgen-api got the sandbox for: ${file}`));
+	const sandbox = utils.getSandbox(stateDoc.jscodeReqest, file);
+	const defaultExport = sandbox.exports.default;
+	const component = typeof defaultExport === 'function' ? defaultExport.options : defaultExport;
 	const vueDoc = utils.getVueDoc(stateDoc, component);
-	console.log(chalk.blue('got the vue doc'));
 	return vueDoc;
 };
 

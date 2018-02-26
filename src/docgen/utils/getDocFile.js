@@ -3,7 +3,7 @@ const getParseBabel = require('./getParseBabel');
 
 export default function getDocFile(jscodeReqest, file) {
 	try {
-		const babelifycode = getParseBabel(jscodeReqest, '2017', true);
+		const babelifycode = getParseBabel(jscodeReqest, { comments: true });
 		const docReturn = jsdoc
 			.explainSync({
 				source: babelifycode.code,

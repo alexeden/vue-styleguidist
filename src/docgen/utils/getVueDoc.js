@@ -28,11 +28,8 @@ export default function getVueDoc(stateDoc, component) {
 		tags = processTags(docComponent, IGNORE_DEFAULT);
 	}
 	const props = processProps(docJsFile, component);
-	console.log('got the props: ', props);
 	const methods = processMethods(docJsFile, component);
-	console.log('got the methods: ', methods);
 	const events = processEvents(docJsFile, component);
-	console.log('got the events: ', events);
 
 	return {
 		description,

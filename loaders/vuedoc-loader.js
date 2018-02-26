@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const generate = require('escodegen').generate;
 const toAst = require('to-ast');
@@ -21,11 +22,7 @@ module.exports = function(source) {
 		config.contextDependencies.forEach(dir => this.addContextDependency(dir));
 	}
 
-	const defaultParser = file => {
-		const parsed = vueDocs.parse(file);
-		return parsed;
-	};
-	const propsParser = config.propsParser || defaultParser;
+	const propsParser = config.propsParser || (file => vueDocs.parse(file));
 
 	try {
 		componentInfo = propsParser(file, source);
@@ -81,12 +78,18 @@ module.exports = function(source) {
 		config.defaultExample
 	);
 
+	fs.writeFileSync('component-info.json', JSON.stringify(componentInfo, null, 2));
+	const ast = toAst(componentInfo);
+	fs.writeFileSync('component-info-ast.json', JSON.stringify(ast, null, 2));
+	const generated = generate(ast);
+	fs.writeFileSync('component-info-generated.js', generated);
+
 	console.log('vueDoc-loader is returning');
 	return `
 		if (module.hot) {
 			module.hot.accept([])
 		}
 
-		module.exports = ${generate(toAst(componentInfo))}
+		module.exports = ${generated}
 	`;
 };

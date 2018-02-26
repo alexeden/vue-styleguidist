@@ -54,7 +54,7 @@ module.exports = function processComponent(filepath, config) {
 		filepath: componentPath,
 		slug: slugger.slug(componentName),
 		pathLine: config.getComponentPathLine(componentPath),
-		module: requireIt(filepath),
+		module: requireIt(`!!${vueDocLoader}!${filepath}`),
 		props,
 		hasExamples: examplesFile && fs.existsSync(examplesFile),
 		metadata: fs.existsSync(componentMetadataPath)

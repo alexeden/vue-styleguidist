@@ -1,7 +1,6 @@
 import vm from 'vm';
 import Vue from 'vue';
 import Vuex from 'vuex';
-
 import stateDoc from './stateDoc';
 
 const fs = require('fs');
@@ -9,20 +8,7 @@ const path = require('path');
 const getRequires = require('./getRequires');
 const getParseBabel = require('./getParseBabel');
 
-function clone(obj) {
-	if (obj === null || typeof obj !== 'object') {
-		return obj;
-	}
-	const copy = obj.constructor();
-	for (const attr in obj) {
-		if (obj.hasOwnProperty(attr)) { // eslint-disable-line
-			copy[attr] = obj[attr];
-		}
-	}
-	return copy;
-}
-
-function getMixins(code, file) { // eslint-disable-line
+function getMixins(code, file) {
 	try {
 		const requiresFromComponent = getRequires(code);
 		const output = [];
@@ -55,38 +41,24 @@ function getMixins(code, file) { // eslint-disable-line
 
 const evalComponentCode = code => {
 	try {
-		const script = new vm.Script(code, {});
-
-		const requireSanbox = element => {
-			console.log(`requireSanbox element: ${element}`);
+		const requireSandbox = element => {
 			if (element === 'vuex') {
 				return Vuex;
-				// return {
-				// 	mapState: function(){},
-				// 	mapMutations: function(){},
-				// 	mapGetters: function(){},
-				// 	mapActions: function(){}
-				// }
 			}
 			if (element === 'vue') {
 				return Vue;
-				// {
-				//   use: function use() {},
-				//   component: function component() {},
-				//   extended: function extended() {},
-				// };
 			}
 			return () => {};
 		};
 
-		requireSanbox.context = () => () => {};
+		requireSandbox.context = () => () => {};
 
-		const sandbox = {
+		const context = vm.createContext({
 			exports: {},
 			module: {
 				exports: {},
 			},
-			require: requireSanbox,
+			require: requireSandbox,
 			document: {},
 			window: {
 				location: {},
@@ -107,21 +79,18 @@ const evalComponentCode = code => {
 				setItem() {},
 				removeItem() {},
 			},
-		};
-		const context = new vm.createContext(sandbox); // eslint-disable-line
-		script.runInContext(context);
-		const output = sandbox;
-		return clone(output);
+		});
+		vm.runInContext(code, context);
+		return context;
 	} catch (err) {
 		throw err;
 	}
 };
 
-module.exports = function getSandbox(jscodeReqest, file) { // eslint-disable-line
+module.exports = function getSandbox(jscodeReqest, file) {
 	const babelifycode = getParseBabel(jscodeReqest);
-	// console.log(`babelifycode for ${file}: `, babelifycode);
-	const component = evalComponentCode(babelifycode.code).exports;
-	// const mixins = getMixins(babelifycode.code, file).reverse();
-	// component.default.mixins = mixins;
+	const mixins = getMixins(babelifycode.code, file).reverse();
+	const component = evalComponentCode(babelifycode.code);
+	component.exports.default.mixins = mixins;
 	return component;
 };
