@@ -6,7 +6,7 @@ const toAst = require('to-ast');
 const getExamples = require('./utils/getExamples');
 const requireIt = require('./utils/requireIt');
 const getComponentVueDoc = require('./utils/getComponentVueDoc');
-const vueDocs = require('vue-docgen-api');
+const vueDocs = require('../lib/docgen/main');
 
 const examplesLoader = path.resolve(__dirname, './examples-loader.js');
 
@@ -21,7 +21,10 @@ module.exports = function(source) {
 		config.contextDependencies.forEach(dir => this.addContextDependency(dir));
 	}
 
-	const defaultParser = file => vueDocs.parse(file);
+	const defaultParser = file => {
+		const parsed = vueDocs.parse(file);
+		return parsed;
+	};
 	const propsParser = config.propsParser || defaultParser;
 
 	try {
@@ -78,6 +81,7 @@ module.exports = function(source) {
 		config.defaultExample
 	);
 
+	console.log('vueDoc-loader is returning');
 	return `
 		if (module.hot) {
 			module.hot.accept([])

@@ -1,60 +1,59 @@
 module.exports = {
 	direction: 'down',
-	log: function() {
+	log() {
 		const args = [].slice.apply(arguments);
-		console.log.apply(console, args);
+		console.log(...args);
 	},
-	space: function() {
+	space() {
 		this.log('\n');
 		this.log('\n');
 		this.log('\n');
 		this.log('\n');
 		this.log('\n');
 	},
-	json: function(json){
-		return JSON.stringify(json, null, 5)
+	json(json) {
+		return JSON.stringify(json, null, 5);
 	},
-	chainLog: function(array) {
+	chainLog(array) {
 		const args = [].slice.apply(arguments);
-		let listLog = [];
+		const listLog = [];
 		args.forEach(arg => {
 			if (Array.isArray(arg)) {
-				listLog.push.apply(listLog, arg);
+				listLog.push(...arg);
 			} else {
 				listLog.push(arg);
 			}
 		});
-		listLog.forEach( arg => {
+		listLog.forEach(arg => {
 			this.log(arg);
 		});
 	},
-	arrow: function(name) {
+	arrow(name) {
 		try {
-			let listArrow = [
-					'<--///////////////////////////////////////////////-->',
-					'<--///////////////////////////////////////-->',
-					'<--///////////////////////////-->',
-					'<--/////////////////-->',
-					'<--//////////-->'
+			const listArrow = [
+				'<--///////////////////////////////////////////////-->',
+				'<--///////////////////////////////////////-->',
+				'<--///////////////////////////-->',
+				'<--/////////////////-->',
+				'<--//////////-->',
 			];
-			if ( name ) {
+			if (name) {
 				const large = listArrow[0].split('');
-				large.splice((large.length / 2) - 1, 0, `    ${name.toUpperCase()}    `);
+				large.splice(large.length / 2 - 1, 0, `    ${name.toUpperCase()}    `);
 				listArrow[0] = large.join('');
 			}
-			if ( this.direction === 'down' ) {
+			if (this.direction === 'down') {
 				this.chainLog(listArrow.reverse());
 				this.direction = 'up';
 			} else {
-				this.chainLog(listArrow)
+				this.chainLog(listArrow);
 				this.direction = 'down';
 			}
 		} catch (e) {
 			console.log('error', e);
 		}
-
 	},
-	wrapperLog: function (name, log) {
+	wrapperLog(name, log) {
 		try {
 			this.space();
 			this.arrow(name);
@@ -64,5 +63,5 @@ module.exports = {
 		} catch (e) {
 			console.log('error', e);
 		}
-	}
-}
+	},
+};
