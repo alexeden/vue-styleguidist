@@ -1,4 +1,5 @@
 import htmlparser2 from 'htmlparser2';
+import { SearchRegEx } from '../constants';
 
 const HtmlParser = htmlparser2.Parser;
 
@@ -10,8 +11,8 @@ export default function getSlots(parts) {
 
 		const parser = new HtmlParser({
 			oncomment: data => {
-				if (data.search(/@slot/) !== -1) {
-					lastComment = data.replace('@slot', '').trim();
+				if (data.search(SearchRegEx.slots) !== -1) {
+					lastComment = data.replace(SearchRegEx.slots, '').trim();
 				}
 			},
 			ontext: text => {

@@ -1,6 +1,5 @@
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
 const generate = require('escodegen').generate;
 const toAst = require('to-ast');
@@ -78,18 +77,11 @@ module.exports = function(source) {
 		config.defaultExample
 	);
 
-	fs.writeFileSync('component-info.json', JSON.stringify(componentInfo, null, 2));
-	const ast = toAst(componentInfo);
-	fs.writeFileSync('component-info-ast.json', JSON.stringify(ast, null, 2));
-	const generated = generate(ast);
-	fs.writeFileSync('component-info-generated.js', generated);
-
-	console.log('vueDoc-loader is returning');
 	return `
 		if (module.hot) {
 			module.hot.accept([])
 		}
 
-		module.exports = ${generated}
+		module.exports = ${generate(toAst(componentInfo))}
 	`;
 };
