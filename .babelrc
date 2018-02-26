@@ -1,0 +1,27 @@
+{
+	"presets": [
+    ["@babel/env", {
+      "targets": {
+        "uglify": true
+      },
+      "modules": "commonjs"
+    }],
+		"@babel/react"
+	],
+	"plugins": [
+    "@babel/plugin-proposal-object-rest-spread",
+		["@babel/plugin-proposal-class-properties", { "loose": false }]
+	],
+	"env": {
+	  "test": {
+	    "presets": [
+	      "@babel/env",
+	      "@babel/react"
+	    ],
+      "plugins": [
+        "@babel/plugin-proposal-object-rest-spread",
+        ["@babel/plugin-proposal-class-properties", { "loose": false }]
+      ]
+    }
+  }
+}
