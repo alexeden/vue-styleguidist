@@ -2,160 +2,32 @@
 'use strict';
 /* eslint-disable no-console */
 
-const minimist = require('minimist');
+// const minimist = require('minimist');
 const chalk = require('chalk');
-const ora = require('ora');
-const opn = require('opn');
 const stringify = require('q-i').stringify;
-const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
-const webpackDevServerUtils = require('react-dev-utils/WebpackDevServerUtils');
 const logger = require('glogg')('rsg');
-const getConfig = require('../scripts/config');
-const setupLogger = require('../scripts/logger');
 const consts = require('../scripts/consts');
-const StyleguidistError = require('../scripts/utils/error');
+const minimist = require('minimist');
 
 const argv = minimist(process.argv.slice(2));
-const command = argv._[0];
 
-// Do not show nasty stack traces for Styleguidist errors
-process.on('uncaughtException', err => {
-	if (err.code === 'EADDRINUSE') {
-		printErrorWithLink(
-			`You have another server running at port ${config.serverPort} somewhere, shut it down first`,
-			'You can change the port using the `serverPort` option in your style guide config:',
-			consts.DOCS_CONFIG
-		);
-	} else if (err instanceof StyleguidistError) {
-		console.error(chalk.bold.red(err.message));
-		logger.debug(err.stack);
-	} else {
-		console.error(err.toString());
-		console.error(err.stack);
-	}
-	process.exit(1);
-});
+// const argv = minimist(process.argv.slice(2));
 
-// Make sure user has webpack installed
-require('../scripts/utils/ensureWebpack');
+module.exports = {
+	printAllErrors,
+	printAllErrorsAndWarnings,
+	printAllWarnings,
+	printErrors,
+	printErrorWithLink,
+	printHelp,
+	printInstructions,
+	printNoLoaderError,
+	printStatus,
+	printStyleguidistError,
+	verbose,
+};
 
-// Set environment before loading style guide config because user’s webpack config may use it
-const env = command === 'build' ? 'production' : 'development';
-process.env.NODE_ENV = process.env.NODE_ENV || env;
-
-// Load style guide config
-let config;
-try {
-	config = getConfig(argv.config, updateConfig);
-} catch (err) {
-	if (err instanceof StyleguidistError) {
-		printErrorWithLink(
-			err.message,
-			err.extra + '\n\n' + 'Learn how to configure your style guide:',
-			consts.DOCS_CONFIG
-		);
-		process.exit(1);
-	} else {
-		throw err;
-	}
-}
-
-verbose('Styleguidist config:', config);
-
-switch (command) {
-	case 'build':
-		commandBuild();
-		break;
-	case 'server':
-		commandServer();
-		break;
-	default:
-		commandHelp();
-}
-
-/**
- * @param {object} config
- * @return {object}
- */
-function updateConfig(config) {
-	// Set verbose mode from config option or command line switch
-	config.verbose = config.verbose || argv.verbose;
-
-	// Setup logger *before* config validation (because validations may use logger to print warnings)
-	setupLogger(config.logger, config.verbose);
-
-	return config;
-}
-
-function commandBuild() {
-	console.log('Building style guide...');
-
-	const build = require('../scripts/build');
-	const compiler = build(config, err => {
-		if (err) {
-			console.error(err);
-			process.exit(1);
-		} else {
-			console.log('Style guide published to:\n' + chalk.underline(config.styleguideDir));
-		}
-	});
-
-	verbose('Webpack config:', compiler.options);
-
-	// Custom error reporting
-	compiler.plugin('done', function(stats) {
-		const messages = formatWebpackMessages(stats.toJson({}, true));
-		const hasErrors = printAllErrorsAndWarnings(messages, stats.compilation);
-		if (hasErrors) {
-			process.exit(1);
-		}
-	});
-}
-
-function commandServer() {
-	let spinner;
-
-	const server = require('../scripts/server');
-	const compiler = server(config, err => {
-		if (err) {
-			console.error(err);
-		} else {
-			const isHttps = compiler.options.devServer && compiler.options.devServer.https;
-			const host = config.serverHost;
-			const port = config.serverPort;
-			const urls = webpackDevServerUtils.prepareUrls(isHttps ? 'https' : 'http', host, port);
-			printInstructions(urls.localUrlForTerminal, urls.lanUrlForTerminal);
-			if (argv.open) {
-				opn(urls.localUrlForBrowser);
-			}
-		}
-	});
-
-	verbose('Webpack config:', compiler.options);
-
-	// Show message when webpack is recompiling the bundle
-	compiler.plugin('invalid', function() {
-		console.log();
-		spinner = ora('Compiling...').start();
-	});
-
-	// Custom error reporting
-	compiler.plugin('done', function(stats) {
-		if (spinner) {
-			spinner.stop();
-		}
-
-		const messages = formatWebpackMessages(stats.toJson({}, true));
-
-		if (!messages.errors.length && !messages.warnings.length) {
-			printStatus('Compiled successfully!', 'success');
-		}
-
-		printAllErrorsAndWarnings(messages, stats.compilation);
-	});
-}
-
-function commandHelp() {
+function printHelp() {
 	console.log(
 		[
 			chalk.underline('Usage'),
@@ -273,7 +145,6 @@ function printAllWarnings(warnings, originalWarnings) {
  * @param {object} errors
  */
 function printStyleguidistError(errors) {
-	console.error(errors);
 	const styleguidistError = errors.find(message =>
 		message.includes('Module build failed: Error: Styleguidist:')
 	);
