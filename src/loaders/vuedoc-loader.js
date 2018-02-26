@@ -6,7 +6,7 @@ const toAst = require('to-ast');
 const getExamples = require('./utils/getExamples');
 const requireIt = require('./utils/requireIt');
 const getComponentVueDoc = require('./utils/getComponentVueDoc');
-const vueDocs = require('../lib/docgen/main');
+const vueDocs = require('../docgen/main');
 
 const examplesLoader = path.resolve(__dirname, './examples-loader.js');
 

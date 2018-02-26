@@ -13,7 +13,7 @@ const StyleguidistOptionsPlugin = require('./utils/StyleguidistOptionsPlugin');
 
 const RENDERER_REGEXP = /Renderer$/;
 
-const sourceDir = path.resolve(__dirname, '../lib');
+const sourceDir = path.resolve(__dirname, '../styleguide');
 const htmlLoader = require.resolve('html-webpack-plugin/lib/loader');
 
 module.exports = function(config, env) {

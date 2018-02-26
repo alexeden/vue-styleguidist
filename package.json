@@ -11,7 +11,7 @@
     "url": "https://github.com/vue-styleguidist/vue-styleguidist/issues"
   },
   "license": "MIT",
-  "main": "scripts/index.js",
+  "main": "lib/scripts/index.js",
   "bin": {
     "vue-styleguidist": "bin/styleguidist.js"
   },
@@ -168,8 +168,8 @@
     "lint": "eslint . --cache --fix",
     "lint-staged": "lint-staged",
     "precompile": "rimraf lib/",
-    "compile": "babel --ignore '*.spec.js' -d lib/ src/",
-    "compile:watch": "babel --ignore '*.spec.js' --watch -d lib/ src/",
+    "compile": "babel --ignore '*.spec.js' -d lib/ src/ --copy-files",
+    "compile:watch": "babel --ignore '*.spec.js' --watch -d lib/ src/ --copy-files",
     "build": "node bin/styleguidist.js build --config examples/basic/styleguide.config.js",
     "build:vuex": "node bin/styleguidist.js build --config examples/vuex/styleguide.config.js",
     "build:nuxtjs": "node bin/styleguidist.js build --config examples/nuxtjs/styleguide.config.js",

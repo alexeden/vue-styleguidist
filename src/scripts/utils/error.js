@@ -1,6 +1,4 @@
-'use strict';
-
-class StyleguidistError extends Error {
+export class StyleguidistError extends Error {
 	constructor(message, extra) {
 		super(message);
 		Error.captureStackTrace(this, this.constructor);
@@ -12,5 +10,3 @@ class StyleguidistError extends Error {
 		});
 	}
 }
-
-module.exports = StyleguidistError;

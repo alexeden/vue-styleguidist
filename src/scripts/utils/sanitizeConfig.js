@@ -1,4 +1,4 @@
-'use strict';
+import { StyleguidistError } from './error';
 
 const fs = require('fs');
 const path = require('path');
@@ -9,14 +9,13 @@ const isFunction = require('lodash/isFunction');
 const isPlainObject = require('lodash/isPlainObject');
 const isString = require('lodash/isString');
 const isFinite = require('lodash/isFinite');
-const map = require('lodash/map');
 const listify = require('listify');
 const chalk = require('chalk');
 const leven = require('leven');
 const stringify = require('q-i').stringify;
 const typeDetect = require('type-detect');
 const logger = require('glogg')('rsg');
-const StyleguidistError = require('./error');
+
 
 const typeCheckers = {
 	number: isFinite,
@@ -46,7 +45,7 @@ const shouldExist = types => types.some(type => type.includes('existing'));
  */
 module.exports = function sanitizeConfig(config, schema, rootDir) {
 	// Check for unknown fields
-	map(config, (value, key) => {
+	Object.entries(config).map(([key, value]) => {
 		if (!schema[key]) {
 			// Try to guess
 			const possibleOptions = Object.keys(schema);
@@ -68,7 +67,7 @@ module.exports = function sanitizeConfig(config, schema, rootDir) {
 
 	// Check all fields
 	const safeConfig = {};
-	map(schema, (props, key) => {
+	Object.entries(schema).map(([key, props]) => {
 		let value = config[key];
 
 		// Custom processing
@@ -145,6 +144,5 @@ ${stringify(example)}`
 
 		safeConfig[key] = value;
 	});
-
 	return safeConfig;
 };

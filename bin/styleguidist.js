@@ -10,10 +10,12 @@ const stringify = require('q-i').stringify;
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const webpackDevServerUtils = require('react-dev-utils/WebpackDevServerUtils');
 const logger = require('glogg')('rsg');
-const getConfig = require('../scripts/config');
-const setupLogger = require('../scripts/logger');
-const consts = require('../scripts/consts');
-const StyleguidistError = require('../scripts/utils/error');
+const getConfig = require('../lib/scripts/config');
+const setupLogger = require('../lib/scripts/logger');
+const consts = require('../lib/scripts/consts');
+const { StyleguidistError } = require('../lib/scripts/utils/error');
+const build = require('../lib/scripts/build');
+const server = require('../lib/scripts/server');
 
 const argv = minimist(process.argv.slice(2));
 const command = argv._[0];
@@ -37,7 +39,7 @@ process.on('uncaughtException', err => {
 });
 
 // Make sure user has webpack installed
-require('../scripts/utils/ensureWebpack');
+require('../lib/scripts/utils/ensureWebpack');
 
 // Set environment before loading style guide config because user’s webpack config may use it
 const env = command === 'build' ? 'production' : 'development';
@@ -46,8 +48,11 @@ process.env.NODE_ENV = process.env.NODE_ENV || env;
 // Load style guide config
 let config;
 try {
+	console.log('getting config');
 	config = getConfig(argv.config, updateConfig);
 } catch (err) {
+	console.error(err);
+	console.error(err.stack);
 	if (err instanceof StyleguidistError) {
 		printErrorWithLink(
 			err.message,
@@ -89,11 +94,9 @@ function updateConfig(config) {
 
 function commandBuild() {
 	console.log('Building style guide...');
-
-	const build = require('../scripts/build');
 	const compiler = build(config, err => {
 		if (err) {
-			console.error(err);
+			console.error('error!', err);
 			process.exit(1);
 		} else {
 			console.log('Style guide published to:\n' + chalk.underline(config.styleguideDir));
@@ -114,8 +117,6 @@ function commandBuild() {
 
 function commandServer() {
 	let spinner;
-
-	const server = require('../scripts/server');
 	const compiler = server(config, err => {
 		if (err) {
 			console.error(err);
@@ -210,7 +211,7 @@ function printErrorWithLink(message, linkTitle, linkUrl) {
  */
 function printErrors(header, errors, originalErrors, type) {
 	printStatus(header, type);
-	console.error();
+	console.error(originalErrors);
 	const messages = argv.verbose ? originalErrors : errors;
 	messages.forEach(message => {
 		console.error(message.message || message);
@@ -256,6 +257,7 @@ function printAllErrorsAndWarnings(messages, compilation) {
  * @param {object} originalErrors
  */
 function printAllErrors(errors, originalErrors) {
+	originalErrors.map(err => console.error(err));
 	printStyleguidistError(errors);
 	printNoLoaderError(errors);
 	printErrors('Failed to compile', errors, originalErrors, 'error');
